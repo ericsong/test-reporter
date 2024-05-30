@@ -119,7 +119,7 @@ export class JavaJunitParser implements TestParser {
     }
 
     // We process <error> and <failure> the same way
-    const failures = tc.failure ?? tc.error
+    const failures = tc.error ?? tc.failure
     if (!failures) {
       return undefined
     }
