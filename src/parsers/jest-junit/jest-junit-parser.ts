@@ -81,11 +81,11 @@ export class JestJunitParser implements TestParser {
   }
 
   private getTestCaseError(tc: TestCase): TestCaseError | undefined {
-    if (!this.options.parseErrors || !tc.failure) {
+    if (!this.options.parseErrors || (!tc.failure && !tc.error)) {
       return undefined
     }
 
-    const details = tc.failure[0]
+    const details = tc.error ? tc.error[0] : tc.failure[0]
     let path
     let line
 
