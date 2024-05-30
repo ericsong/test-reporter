@@ -14,6 +14,17 @@ import {
   TestCaseError
 } from '../../test-results'
 
+function extractDiagnosticText(diagnosticString: string): string | null {
+  try {
+    const diagnosticJson = JSON.parse(diagnosticString);
+    const diagnosticText = diagnosticJson.diagnosticText;
+    const unescapedText = diagnosticText.replace(/\\u001b\[(\d+)(;\d+)?m/g, '');
+    return unescapedText;
+  } catch (error) {
+    return null;
+  }
+}
+
 export class JestJunitParser implements TestParser {
   assumedWorkDir: string | undefined
 
@@ -85,7 +96,13 @@ export class JestJunitParser implements TestParser {
       return undefined
     }
 
-    const details = tc.failure[0]
+    let details = tc.failure[0];
+
+    const diagnosticText = extractDiagnosticText(details);
+    if (diagnosticText) {
+      details = diagnosticText
+    }
+
     let path
     let line
 
