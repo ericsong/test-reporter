@@ -343,12 +343,10 @@ class TestReporter {
             const input = yield inputProvider.load();
             for (const [reportName, files] of Object.entries(input)) {
                 try {
-                    core.startGroup(`Creating test report ${reportName}`);
                     const tr = yield this.createReport(parser, reportName, files);
                     results.push(...tr);
                 }
                 finally {
-                    core.endGroup();
                 }
             }
             const isFailed = results.some(tr => tr.result === 'failed');
@@ -1195,6 +1193,19 @@ const xml2js_1 = __nccwpck_require__(6189);
 const node_utils_1 = __nccwpck_require__(5824);
 const path_utils_1 = __nccwpck_require__(4070);
 const test_results_1 = __nccwpck_require__(2768);
+function extractDiagnosticText(diagnosticString) {
+    try {
+        const diagnosticJson = JSON.parse(diagnosticString);
+        const diagnosticText = diagnosticJson.diagnosticText;
+        const unescapedText = diagnosticText
+            .replace(/\\u001b\[(\d+)(;\d+)?m/g, '')
+            .replace(/\x1B\[[0-?]*[ -/]*[@-~]/g, '');
+        return unescapedText;
+    }
+    catch (error) {
+        return null;
+    }
+}
 class JestJunitParser {
     constructor(options) {
         this.options = options;
@@ -1262,7 +1273,11 @@ class JestJunitParser {
         if (!this.options.parseErrors || !tc.failure) {
             return undefined;
         }
-        const details = tc.failure[0];
+        let details = tc.failure[0];
+        const diagnosticText = extractDiagnosticText(details);
+        if (diagnosticText) {
+            details = diagnosticText;
+        }
         let path;
         let line;
         const src = (0, node_utils_1.getExceptionSource)(details, this.options.trackedFiles, file => this.getRelativePath(file));
