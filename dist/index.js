@@ -395,11 +395,12 @@ class TestReporter {
                     title: name,
                     summary: ''
                 } }, github.context.repo));
-            core.info('Creating report summary');
+            core.info('ERIC - Creating report summary');
             const { listSuites, listTests, onlySummary } = this;
             const baseUrl = createResp.data.html_url;
             const summary = (0, get_report_1.getReport)(results, { listSuites, listTests, baseUrl, onlySummary });
-            core.info('Creating annotations');
+            core.info(`ERIC - ${listSuites} - ${listTests} - ${baseUrl} - ${onlySummary}`);
+            core.info('ERIC - Creating annotations');
             const annotations = (0, get_annotations_1.getAnnotations)(results, this.maxAnnotations);
             const isFailed = this.failOnError && results.some(tr => tr.result === 'failed');
             const conclusion = isFailed ? 'failure' : 'success';
@@ -407,6 +408,8 @@ class TestReporter {
             const failed = results.reduce((sum, tr) => sum + tr.failed, 0);
             const skipped = results.reduce((sum, tr) => sum + tr.skipped, 0);
             const shortSummary = `${passed} passed, ${failed} failed and ${skipped} skipped `;
+            core.info(`ERIC - ${this.maxAnnotations}`);
+            core.info(`ERIC - ${listSuites} - ${listTests} - ${baseUrl} - ${onlySummary}`);
             core.info(`Updating check run conclusion (${conclusion}) and output`);
             const resp = yield this.octokit.rest.checks.update(Object.assign({ check_run_id: createResp.data.id, conclusion, status: 'completed', output: {
                     title: shortSummary,
@@ -1195,6 +1198,17 @@ const xml2js_1 = __nccwpck_require__(6189);
 const node_utils_1 = __nccwpck_require__(5824);
 const path_utils_1 = __nccwpck_require__(4070);
 const test_results_1 = __nccwpck_require__(2768);
+function extractDiagnosticText(diagnosticString) {
+    try {
+        const diagnosticJson = JSON.parse(diagnosticString);
+        const diagnosticText = diagnosticJson.diagnosticText;
+        const unescapedText = diagnosticText.replace(/\\u001b\[(\d+)(;\d+)?m/g, '');
+        return unescapedText;
+    }
+    catch (error) {
+        return null;
+    }
+}
 class JestJunitParser {
     constructor(options) {
         this.options = options;
@@ -1262,7 +1276,11 @@ class JestJunitParser {
         if (!this.options.parseErrors || !tc.failure) {
             return undefined;
         }
-        const details = tc.failure[0];
+        let details = tc.failure[0];
+        const diagnosticText = extractDiagnosticText(details);
+        if (diagnosticText) {
+            details = diagnosticText;
+        }
         let path;
         let line;
         const src = (0, node_utils_1.getExceptionSource)(details, this.options.trackedFiles, file => this.getRelativePath(file));

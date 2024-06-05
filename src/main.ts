@@ -173,13 +173,13 @@ class TestReporter {
       ...github.context.repo
     })
 
-    core.info('Creating report summary')
+    core.info('ERIC - Creating report summary')
     const {listSuites, listTests, onlySummary} = this
     const baseUrl = createResp.data.html_url as string
     const summary = getReport(results, {listSuites, listTests, baseUrl, onlySummary})
     core.info(`ERIC - ${listSuites} - ${listTests} - ${baseUrl} - ${onlySummary}`)
 
-    core.info('Creating annotations')
+    core.info('ERIC - Creating annotations')
     const annotations = getAnnotations(results, this.maxAnnotations)
 
     const isFailed = this.failOnError && results.some(tr => tr.result === 'failed')
