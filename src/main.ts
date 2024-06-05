@@ -177,6 +177,7 @@ class TestReporter {
     const {listSuites, listTests, onlySummary} = this
     const baseUrl = createResp.data.html_url as string
     const summary = getReport(results, {listSuites, listTests, baseUrl, onlySummary})
+    core.info(`ERIC - ${listSuites} - ${listTests} - ${baseUrl} - ${onlySummary}`)
 
     core.info('Creating annotations')
     const annotations = getAnnotations(results, this.maxAnnotations)
@@ -189,6 +190,8 @@ class TestReporter {
     const skipped = results.reduce((sum, tr) => sum + tr.skipped, 0)
     const shortSummary = `${passed} passed, ${failed} failed and ${skipped} skipped `
 
+    core.info(`ERIC - ${this.maxAnnotations}`)
+    core.info(`ERIC - ${listSuites} - ${listTests} - ${baseUrl} - ${onlySummary}`)
     core.info(`Updating check run conclusion (${conclusion}) and output`)
     const resp = await this.octokit.rest.checks.update({
       check_run_id: createResp.data.id,
