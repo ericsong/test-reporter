@@ -395,12 +395,11 @@ class TestReporter {
                     title: name,
                     summary: ''
                 } }, github.context.repo));
-            core.info('ERIC - Creating report summary');
+            core.info('Creating report summary');
             const { listSuites, listTests, onlySummary } = this;
             const baseUrl = createResp.data.html_url;
             const summary = (0, get_report_1.getReport)(results, { listSuites, listTests, baseUrl, onlySummary });
-            core.info(`ERIC - ${listSuites} - ${listTests} - ${baseUrl} - ${onlySummary}`);
-            core.info('ERIC - Creating annotations');
+            core.info('Creating annotations');
             const annotations = (0, get_annotations_1.getAnnotations)(results, this.maxAnnotations);
             const isFailed = this.failOnError && results.some(tr => tr.result === 'failed');
             const conclusion = isFailed ? 'failure' : 'success';
@@ -408,8 +407,6 @@ class TestReporter {
             const failed = results.reduce((sum, tr) => sum + tr.failed, 0);
             const skipped = results.reduce((sum, tr) => sum + tr.skipped, 0);
             const shortSummary = `${passed} passed, ${failed} failed and ${skipped} skipped `;
-            core.info(`ERIC - ${this.maxAnnotations}`);
-            core.info(`ERIC - ${listSuites} - ${listTests} - ${baseUrl} - ${onlySummary}`);
             core.info(`Updating check run conclusion (${conclusion}) and output`);
             const resp = yield this.octokit.rest.checks.update(Object.assign({ check_run_id: createResp.data.id, conclusion, status: 'completed', output: {
                     title: shortSummary,
@@ -1280,7 +1277,6 @@ class JestJunitParser {
         }
         let details = tc.failure[0];
         const diagnosticText = extractDiagnosticText(details);
-        console.log(`ERIC - ${diagnosticText}`);
         if (diagnosticText) {
             details = diagnosticText;
         }

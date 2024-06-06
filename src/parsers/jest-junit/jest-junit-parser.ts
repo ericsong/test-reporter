@@ -101,7 +101,6 @@ export class JestJunitParser implements TestParser {
     let details = tc.failure[0];
 
     const diagnosticText = extractDiagnosticText(details);
-    console.log(`ERIC - ${diagnosticText}`)
     if (diagnosticText) {
       details = diagnosticText
     }
