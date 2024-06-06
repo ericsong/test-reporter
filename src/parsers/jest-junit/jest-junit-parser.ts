@@ -18,7 +18,9 @@ function extractDiagnosticText(diagnosticString: string): string | null {
   try {
     const diagnosticJson = JSON.parse(diagnosticString);
     const diagnosticText = diagnosticJson.diagnosticText;
-    const unescapedText = diagnosticText.replace(/\\u001b\[(\d+)(;\d+)?m/g, '');
+    const unescapedText = diagnosticText
+      .replace(/\\u001b\[(\d+)(;\d+)?m/g, '')
+      .replace(/\x1B\[[0-?]*[ -/]*[@-~]/g, '');
     return unescapedText;
   } catch (error) {
     return null;
@@ -99,6 +101,7 @@ export class JestJunitParser implements TestParser {
     let details = tc.failure[0];
 
     const diagnosticText = extractDiagnosticText(details);
+    console.log(`ERIC - ${diagnosticText}`)
     if (diagnosticText) {
       details = diagnosticText
     }
